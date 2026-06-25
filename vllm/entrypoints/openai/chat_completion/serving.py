@@ -265,6 +265,7 @@ class OpenAIServingChat(OpenAIServing):
                 chat_template_kwargs=chat_template_kwargs,
             )
         result = await self.render_chat_request(request)
+        #lora的需求下面会有
         if isinstance(result, ErrorResponse):
             return result
 
@@ -355,7 +356,7 @@ class OpenAIServingChat(OpenAIServing):
                 else:
                     reasoning_ended = None
 
-                generator = self.engine_client.generate(
+                generator = self.engine_client.generate(#拿到参数交给engine
                     engine_input,
                     sampling_params,
                     sub_request_id,

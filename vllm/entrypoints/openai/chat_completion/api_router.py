@@ -50,7 +50,7 @@ def batch_chat(request: Request) -> OpenAIServingChatBatch | None:
 )
 @with_cancellation
 @load_aware_call
-async def create_chat_completion(request: ChatCompletionRequest, raw_request: Request):
+async def create_chat_completion(request: ChatCompletionRequest, raw_request: Request):#一开始 是raw request curl传入的然后包装成request
     metrics_header_format = raw_request.headers.get(
         ENDPOINT_LOAD_METRICS_FORMAT_HEADER_LABEL, ""
     )

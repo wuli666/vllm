@@ -394,7 +394,7 @@ class OpenAIServingRender:
                 parser=self.parser,
                 skip_mm_cache=skip_mm_cache,
             )
-        else:
+        else:#专门给gpt-oss的处理的
             # For GPT-OSS.
             should_include_tools = tool_dicts is not None
             conversation, engine_inputs = self._make_request_with_harmony(

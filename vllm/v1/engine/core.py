@@ -400,7 +400,7 @@ class EngineCore:
                 "Disabling KVTransfer for this request."
             )
 
-        self.scheduler.add_request(request)
+        self.scheduler.add_request(request)#真正底层管理的request
         if request.abort_immediately:
             # Immediately abort so the connector's request_finished hook runs
             # to free any pre-admission KV-transfer resources.
@@ -593,7 +593,7 @@ class EngineCore:
             self.log_iteration_details(scheduler_output),
         ):
             model_output = future.result()
-            if model_output is None:
+            if model_output is None: 
                 # None from sample_tokens() implies that the original execute_model()
                 # call failed - raise that exception.
                 exec_model_fut.result()
@@ -861,7 +861,7 @@ class EngineCore:
         # and will only be accessed in the input processing thread afterwards.
         if self.mm_receiver_cache is not None and request.mm_features:
             request.mm_features = self.mm_receiver_cache.get_and_update_features(
-                request.mm_features
+                request.mm_features                                    
             )
 
         req = Request.from_engine_core_request(request, self.request_block_hasher)
@@ -1271,7 +1271,7 @@ class EngineCoreProc(EngineCore):
         while not self.has_work() and self.is_running():
             # Notify callbacks waiting for engine to become idle.
             self._notify_idle_state_callbacks()
-            if self.input_queue.empty():
+            if self.input_queue.empty():#如果空了就是不停的轮训
                 # Drain aborts queue; all aborts are also processed via input_queue.
                 with self.aborts_queue.mutex:
                     self.aborts_queue.queue.clear()
@@ -1279,7 +1279,7 @@ class EngineCoreProc(EngineCore):
                     logger.debug("EngineCore waiting for work.")
                     waited = True
             block = self.process_input_queue_block
-            try:
+            try:#直到有数据为止
                 req = self.input_queue.get(block=block)
                 self._handle_client_request(*req)
             except queue.Empty:

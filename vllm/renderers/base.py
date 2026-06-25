@@ -422,10 +422,10 @@ class BaseRenderer(ABC, Generic[_T]):
         tokenizer = self.get_tokenizer()
         prompt_token_ids = tokenizer.encode(
             prompt["prompt"],
-            **params.get_encode_kwargs(),
+            **params.get_encode_kwargs(),#这部分其实和tokenizer实现的部分差不多
         )
 
-        return TokensPrompt(prompt_token_ids=prompt_token_ids, **prompt)
+        return TokensPrompt(prompt_token_ids=prompt_token_ids, **prompt)#分装成这个之后回传
 
     async def _tokenize_prompt_async(
         self,
@@ -570,7 +570,7 @@ class BaseRenderer(ABC, Generic[_T]):
         params: TokenizeParams,
     ) -> TokPrompt:
         if "encoder_prompt" in prompt:
-            return self._tokenize_enc_dec_prompt(prompt, params)  # type: ignore[arg-type]
+            return self._tokenize_enc_dec_prompt(prompt, params)  # type: ignore[arg-type] 如果你需要encode和decode那就这种情况
 
         return self._tokenize_singleton_prompt(prompt, params)
 
@@ -703,7 +703,7 @@ class BaseRenderer(ABC, Generic[_T]):
             mm_data, mm_data_items, mm_uuid_items, mm_req_id
         )
 
-        mm_processor_inputs = MMProcessorInputs(
+        mm_processor_inputs = MMProcessorInputs(#构建mmprocess的 input
             prompt,
             mm_data_items,
             mm_uuid_items,
@@ -713,7 +713,7 @@ class BaseRenderer(ABC, Generic[_T]):
         mm_timing_ctx = self._mm_timing_registry.get(mm_req_id)
 
         with set_default_torch_num_threads():
-            mm_inputs = mm_processor.apply(mm_processor_inputs, mm_timing_ctx)
+            mm_inputs = mm_processor.apply(mm_processor_inputs, mm_timing_ctx)#然后apply
 
         self.update_mm_cache_stats()
 
@@ -789,7 +789,7 @@ class BaseRenderer(ABC, Generic[_T]):
         prompt_token_ids = prompt["prompt_token_ids"]
 
         engine_input: TokensInput | MultiModalInput
-        if multi_modal_data := prompt.get("multi_modal_data"):
+        if multi_modal_data := prompt.get("multi_modal_data"):#如果是多模态的就是走这个
             engine_input = await self._process_multimodal_async(
                 prompt_token_ids,
                 multi_modal_data,
@@ -799,7 +799,7 @@ class BaseRenderer(ABC, Generic[_T]):
                 skip_mm_cache=skip_mm_cache,
             )
         else:
-            engine_input = tokens_input(prompt_token_ids)
+            engine_input = tokens_input(prompt_token_ids)#如果不是就是走这个
 
         if prompt_text := prompt.get("prompt"):
             engine_input["prompt"] = prompt_text
@@ -819,7 +819,7 @@ class BaseRenderer(ABC, Generic[_T]):
 
         return self._process_tokens(prompt, skip_mm_cache=skip_mm_cache)  # type: ignore[arg-type]
 
-    async def _process_singleton_async(
+    async def  _process_singleton_async(
         self,
         prompt: SingletonTokPrompt,
         *,
@@ -1042,7 +1042,7 @@ class BaseRenderer(ABC, Generic[_T]):
 
         eng_prompts = await asyncio.gather(
             *(
-                self.process_for_engine_async(
+                self.process_for_engine_async(# 多模态的预处理
                     p, arrival_time, skip_mm_cache=skip_mm_cache
                 )
                 for p in tok_prompts

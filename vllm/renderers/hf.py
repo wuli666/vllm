@@ -743,7 +743,7 @@ def safe_apply_chat_template(
             chat_template=chat_template,
             tokenize=tokenize,
             **resolved_kwargs,
-        )
+        )#和transformer几乎一样 只是这边只执行的apply chat template tokenizer的过程给到其他模块处理
     # External library exceptions can sometimes occur despite the framework's
     # internal exception management capabilities.
     except Exception as e:
@@ -1003,7 +1003,7 @@ class HfRenderer(BaseRenderer[HfTokenizer]):
                 _ensure_prompt_embeds_placeholder_token(tokenizer)
             )
 
-        conversation, mm_data, mm_uuids = await parse_chat_messages_async(
+        conversation, mm_data, mm_uuids = await parse_chat_messages_async(#非常恐怖的嵌套
             messages,
             model_config,
             content_format=resolve_chat_template_content_format(
@@ -1033,7 +1033,7 @@ class HfRenderer(BaseRenderer[HfTokenizer]):
                 logger.warning_once(_TOKENIZE_OVERRIDE_WARNING)
             chat_template_kwargs["tokenize"] = True
 
-        prompt_raw = await self._apply_chat_template_async(
+        prompt_raw = await self._apply_chat_template_async(#
             model_config,
             tokenizer,
             conversation,

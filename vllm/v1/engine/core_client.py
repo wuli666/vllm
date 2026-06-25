@@ -1062,7 +1062,7 @@ class AsyncMPClient(MPClient):
         return outputs
 
     def _send_input(
-        self,
+        self, 
         request_type: EngineCoreRequestType,
         request: Any,
         engine: EngineIdentity | None = None,

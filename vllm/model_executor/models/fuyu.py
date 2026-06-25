@@ -56,7 +56,7 @@ _IMAGE_TOKEN_ID = 71011
 _NEWLINE_TOKEN_ID = 71019
 
 
-class FuyuImagePatchInputs(TensorSchema):
+class FuyuImagePatchInputs(TensorSchema):#判断维度校验
     """
     Dimensions:
         - bn: Batch size * number of images
@@ -77,7 +77,7 @@ class FuyuImagePatchInputs(TensorSchema):
     """
 
 
-class FuyuProcessingInfo(BaseProcessingInfo):
+class FuyuProcessingInfo(BaseProcessingInfo):#支持哪些process
     def get_hf_config(self):
         return self.ctx.get_hf_config(FuyuConfig)
 
@@ -90,7 +90,7 @@ class FuyuProcessingInfo(BaseProcessingInfo):
     def get_supported_mm_limits(self) -> Mapping[str, int | None]:
         return {"image": 1}
 
-    def get_image_feature_grid_size(
+    def get_image_feature_grid_size(#辅助函数 resize什么的
         self,
         *,
         image_width: int,
@@ -114,7 +114,7 @@ class FuyuProcessingInfo(BaseProcessingInfo):
         nrows = math.ceil(image_height / patch_height)
         return ncols, nrows
 
-    def get_num_image_tokens(
+    def get_num_image_tokens(#输入一个image 估计要用多少的token
         self,
         *,
         image_width: int,
@@ -127,15 +127,15 @@ class FuyuProcessingInfo(BaseProcessingInfo):
 
         return ncols * nrows
 
-    def get_image_size_with_most_features(self) -> ImageSize:
+    def get_image_size_with_most_features(self) -> ImageSize:#最大有多大
         image_processor = self.get_image_processor()
         return ImageSize(
             width=image_processor.size["width"], height=image_processor.size["height"]
         )
 
 
-class FuyuDummyInputsBuilder(BaseDummyInputsBuilder[FuyuProcessingInfo]):
-    def get_dummy_text(self, mm_counts: Mapping[str, int]) -> str:
+class FuyuDummyInputsBuilder(BaseDummyInputsBuilder[FuyuProcessingInfo]):#没有占位符，图像直接插入文本最前面
+    def get_dummy_text(self, mm_counts: Mapping[str, int]) -> str:#所以没有是空字符串
         return ""
 
     def get_dummy_mm_data(
@@ -188,7 +188,7 @@ class FuyuMultiModalProcessor(BaseMultiModalProcessor[FuyuProcessingInfo]):
 
         return processed_outputs
 
-    def _apply_hf_processor_tokens_only(
+    def _apply_hf_processor_tokens_only(#[boa] token会漏特殊处理一下 别的模型不需要
         self,
         prompt_tokens: list[int],
     ) -> list[int]:
@@ -202,7 +202,7 @@ class FuyuMultiModalProcessor(BaseMultiModalProcessor[FuyuProcessingInfo]):
 
         return prompt_tokens
 
-    def _get_mm_fields_config(
+    def _get_mm_fields_config(#hf process输出之后要用哪些字段用做输入
         self,
         hf_inputs: BatchFeature,
         hf_processor_mm_kwargs: Mapping[str, object],
@@ -214,7 +214,7 @@ class FuyuMultiModalProcessor(BaseMultiModalProcessor[FuyuProcessingInfo]):
                 "image", patches_per_image
             ),
             patches_per_image=MultiModalFieldConfig.batched("image"),
-        )
+        )#只有了两个
 
     def _get_prompt_updates(
         self,
@@ -230,7 +230,7 @@ class FuyuMultiModalProcessor(BaseMultiModalProcessor[FuyuProcessingInfo]):
         eot_token_id = tokenizer.bos_token_id
         assert isinstance(eot_token_id, int)
 
-        def get_replacement_fuyu(item_idx: int):
+        def get_replacement_fuyu(item_idx: int):#占位符替换 
             images = mm_items.get_items("image", ImageProcessorItems)
             image_size = images.get_image_size(item_idx)
 
@@ -258,7 +258,7 @@ class FuyuMultiModalProcessor(BaseMultiModalProcessor[FuyuProcessingInfo]):
     FuyuMultiModalProcessor,
     info=FuyuProcessingInfo,
     dummy_inputs=FuyuDummyInputsBuilder,
-)
+)#注册预处理
 class FuyuForCausalLM(nn.Module, SupportsMultiModal, SupportsPP):
     hf_to_vllm_mapper = WeightsMapper(
         orig_to_new_prefix={

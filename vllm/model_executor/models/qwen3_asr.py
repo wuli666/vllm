@@ -567,7 +567,7 @@ class Qwen3ASRForConditionalGeneration(
     def get_speech_to_text_config(
         cls, model_config: ModelConfig, task_type: str
     ) -> SpeechToTextConfig:
-        processor = cached_processor_from_config(model_config)
+        processor = cached_processor_from_config(model_config)#提前提供一个模版 然后直接auto直接运行
         feature_extractor: WhisperFeatureExtractor = processor.feature_extractor
         return SpeechToTextConfig(
             max_audio_clip_s=feature_extractor.chunk_length,
@@ -615,7 +615,7 @@ class Qwen3ASRForConditionalGeneration(
         lang_code = to_language if task_type == "translate" else language
         if lang_code is not None:
             full_lang_name = cls.supported_languages.get(lang_code, lang_code)
-            prompt += f"language {full_lang_name}{_ASR_TEXT_TAG}"
+            prompt += f"language {full_lang_name}{_ASR_TEXT_TAG}"#训练好输出中英文
 
         prompt_token_ids = tokenizer.encode(prompt)
 

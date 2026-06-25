@@ -1453,7 +1453,7 @@ MM_PARSER_MAP: dict[
 
 def _parse_chat_message_content_mm_part(
     part: ChatCompletionContentPartParam,
-) -> tuple[str, _ContentPart]:
+) -> tuple[str, _ContentPart]:#image embedding相关代码
     """
     Parses a given multi-modal content part based on its type.
 
